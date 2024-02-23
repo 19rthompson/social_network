@@ -1,4 +1,3 @@
-import argparse
 import sys
 import click
 import os
@@ -87,8 +86,19 @@ CREATE TABLE posts (
 );
 ''')
 
+@click.command()
+def generate():
+    fin = open("social-media-random-user-account-data.txt")
+    for line in fin:
+        words = line.split()
+        email = words[0]
+        username = words[1]
+        password = words[2]
+        adduser(email)
+        addaccount(email, username, password)
+    fin.close() 
 
-
+    
 @click.command()
 @click.argument('email')
 def adduser(email):
@@ -98,6 +108,9 @@ def adduser(email):
         cursor.execute('''INSERT INTO users (email) VALUES (?)''', (email,))
         id = cursor.lastrowid
         print(f'inserted with id={id}')
+
+
+
 
 @click.command()
 @click.argument('email')
@@ -112,6 +125,7 @@ def addaccount(email, username):
         print(f'inserted with id = {id}')
 
 cli.add_command(create)
+cli.add_command(generate)
 cli.add_command(adduser)
 cli.add_command(addaccount)
 cli()
