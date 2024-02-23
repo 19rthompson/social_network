@@ -1,4 +1,5 @@
 import argparse
+import sys
 import click
 import os
 import sqlite3
@@ -22,8 +23,7 @@ def cli():
     pass
     
 @click.command()
-def create(){
-   def create():
+def create():
     with getdb(create=True) as con:
         con.execute(
 '''CREATE TABLE blocks(
@@ -87,7 +87,7 @@ CREATE TABLE posts (
 );
 ''')
 
-}
+
 
 @click.command()
 @click.argument('email')
@@ -111,13 +111,11 @@ def addaccount(email, username):
         id = cursor.lastrow
         print(f'inserted with id = {id}')
 
-cli.addcommand(create)
-cli.addcommand(adduser)
-cli.addcommand(addaccount)
+cli.add_command(create)
+cli.add_command(adduser)
+cli.add_command(addaccount)
 cli()
 
-def main(){
-
-}
-
+def main():
+    return -1
 main()
