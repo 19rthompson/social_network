@@ -5,9 +5,6 @@ import sqlite3
 
 DB_FILE = 'network.db'
 
-def error(args):
-    print('This command requires a subcommand')
-
 def getdb(create=False):
     if os.path.exists(DB_FILE):
         if create:
@@ -25,7 +22,7 @@ def cli():
     pass
     
 @click.command()
-def create(args){
+def create(){
    def create():
     with getdb(create=True) as con:
         con.execute(
