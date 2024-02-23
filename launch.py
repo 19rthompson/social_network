@@ -7,13 +7,27 @@ DB_FILE = 'network.db'
 def error(args):
     print('This command requires a subcommand')
 
-def create(args){
+def getdb(create=False):
     if os.path.exists(DB_FILE):
-        print(DB_FILE, 'already exists, quitting')
-        sys.exit(1)
-
+        if create:
+            os.remove(DB_FILE)
+    else:
+        if not create:
+            print('no database found')
+            sys.exit(1)
     con = sqlite3.connect(DB_FILE)
-    con.execute(
+    con.execute('PRAGMA foreign_keys = ON')
+    return con
+
+@click.group()
+def cli():
+    pass
+    
+@click.command()
+def create(args){
+   def create():
+    with getdb(create=True) as con:
+        con.execute(
 '''CREATE TABLE blocks(
     blocked_id      INTEGER NOT NULL,
     blocker_id      INTEGER NOT NULL,
@@ -76,6 +90,33 @@ CREATE TABLE posts (
 ''')
 
 }
+
+@click.command()
+@click.argument('email')
+def adduser(email):
+    print('creating user with email address', email)
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute('''INSERT INTO users (email) VALUES (?)''', (email,))
+        id = cursor.lastrowid
+        print(f'inserted with id={id}')
+
+@click.command()
+@click.argument('email')
+@click.argument('username')
+def addaccount(email, username):
+    print('creating account with username', username, 'for email', email)
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute('''INSERT INTO accounts (user_id, username) 
+            VALUES (SELECT id FRO< users WHERE email = ?, ?)''', email, username)
+        id = cursor.lastrow
+        print(f'inserted with id = {id}')
+
+cli.addcommand(create)
+cli.addcommand(adduser)
+cli.addcommand(addaccount)
+cli()
 
 def main(){
 
