@@ -94,8 +94,21 @@ def generate():
         email = words[0]
         username = words[1]
         password = words[2]
-        adduser(email)
-        addaccount(email, username, password)
+
+        with getdb() as con:
+            cursor = con.cursor()
+            cursor.execute('''INSERT INTO users (email) VALUES (?)''', (email,))
+            id = cursor.lastrowid
+            print(f'inserted with id = {id}')
+        # adduser(email)
+        
+        with getdb() as con:
+            cursor = con.cursor()
+            cursor.execute('''INSERT INTO accounts (user_id, username, password) 
+                VALUES ((SELECT user_id FROM users WHERE email = ?), ?, ?)''', (email, username, password))
+            id = cursor.lastrowid
+            print(f'inserted with id = {id}')
+        # addaccount(email, username, password)
     fin.close() 
 
     
@@ -107,7 +120,7 @@ def adduser(email):
         cursor = con.cursor()
         cursor.execute('''INSERT INTO users (email) VALUES (?)''', (email,))
         id = cursor.lastrowid
-        print(f'inserted with id={id}')
+        print(f'inserted with id = {id}')
 
 
 
@@ -115,19 +128,41 @@ def adduser(email):
 @click.command()
 @click.argument('email')
 @click.argument('username')
-def addaccount(email, username):
-    print('creating account with username', username, 'for email', email)
+@click.argument('password')
+def addaccount(email, username, password):
+    print('creating account with username', username, 'for email', email, 'with password', password)
     with getdb() as con:
         cursor = con.cursor()
-        cursor.execute('''INSERT INTO accounts (user_id, username) 
-            VALUES (SELECT id FRO< users WHERE email = ?, ?)''', email, username)
+        cursor.execute('''INSERT INTO accounts (user_id, username, password) 
+            VALUES ((SELECT user_id FROM users WHERE email = ?), ?, ?)''', (email, username, password))
         id = cursor.lastrow
         print(f'inserted with id = {id}')
+
+
+@click.command()
+def simpScore():
+    with getdb(create=True) as con:
+        con.execute(
+'''
+SELECT
+    u.email,
+    ( COUNT(s) / COUNT(F) ) AS simpscore
+FROM users AS u
+JOIN accounts AS a ON
+    u.user_id = a.user_id
+JOIN subscribers AS s ON
+    s.subscriber_id = a.account_id
+JOIN followers AS f ON
+    f.follower_id = a.account_id
+GROUP BY u.email
+ORDER BY simpscore, u.email DESC;
+''')
 
 cli.add_command(create)
 cli.add_command(generate)
 cli.add_command(adduser)
 cli.add_command(addaccount)
+cli.add_command(simpScore)
 cli()
 
 def main():
