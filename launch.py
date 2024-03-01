@@ -65,7 +65,7 @@ CREATE TABLE followers(
 ''')
     con.execute(
 '''
-    CREATE TABLE subsribers(
+    CREATE TABLE subscribers(
         subscriber_id INTEGER NOT NULL,
         subscribing_id  INTEGER NOT NULL,
         FOREIGN KEY (subscriber_id) REFERENCES accounts(account_id)
@@ -165,15 +165,88 @@ def listAccounts():
             print(row)
 
 
+@click.command()
+@click.argument('followerusername')
+@click.argument('followeeusername')
+def followAccount(followerusername,followeeusername):
+    print("having:",followerusername,"follow:",followeeusername)
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute("""INSERT INTO followers(follower_id,following_id)
+        VALUES(
+            (SELECT account_id FROM accounts WHERE accounts.username = ?),
+            (SELECT account_id FROM accounts WHERE accounts.username = ?)
+            )""",
+        (followerusername, followeeusername))
+
+
+@click.command()
+@click.argument('unfollowerusername')
+@click.argument('unfolloweeusername')
+def unfollowAccount(unfollowerusername,unfolloweeusername):
+    print("having:",unfollowerusername,"unfollow:",unfolloweeusername)
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute("""DELETE FROM followers
+        WHERE
+            follower_id=(SELECT account_id FROM accounts WHERE accounts.username = ?) AND
+            following_id=(SELECT account_id FROM accounts WHERE accounts.username = ?)
+            """,
+        (unfollowerusername, unfolloweeusername))
+
+
+@click.command()
+@click.argument('username')
+@click.argument('content')
+@click.argument('image')
+@click.argument('hashtag')
+def createPost(username,content,image,hashtag):
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute("""INSERT INTO posts (account_id,content,image,created_at,hashtag)
+        VALUES((SELECT account_id FROM accounts WHERE accounts.username = ?),?,?,DATETIME('now'),?
+            )
+            """,
+        (username,content,image,hashtag))
+
+@click.command()
+@click.argument('content')
+@click.argument('image')
+@click.argument('hashtag')
+@click.argument("postid")
+def editPost(content,image,hashtag,postid):
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute(
+            """UPDATE posts
+            SET content = ?,
+            image = ?,
+            created_at = DATETIME('now'),
+            hashtag = ?
+            WHERE post_id = ?""",
+        (content,image,hashtag,postid))
+        print(content,image,hashtag,postid)
+
+@click.command()
+@click.argument('postid')
+def deletePost(postid):
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute(
+            """DELETE FROM posts
+            WHERE post_id = ?""",
+        (postid,))
+
 
 @click.command()
 def simpScore():
-    with getdb(create=True) as con:
-        con.execute(
+    with getdb() as con:
+        cursor=con.cursor()
+        cursor.execute(
 '''
 SELECT
     u.email,
-    ( COUNT(s) / COUNT(F) ) AS simpscore
+    ( COUNT(s.subsriber_id) / COUNT(f.following_id) ) AS simpscore
 FROM users AS u
 JOIN accounts AS a ON
     u.user_id = a.user_id
@@ -185,6 +258,8 @@ GROUP BY u.email
 ORDER BY simpscore, u.email DESC;
 ''')
 
+cli.add_command(unfollowAccount)
+cli.add_command(followAccount)
 cli.add_command(create)
 cli.add_command(generate)
 cli.add_command(adduser)
@@ -193,6 +268,10 @@ cli.add_command(simpScore)
 cli.add_command(createUser)
 cli.add_command(listUsers)
 cli.add_command(listAccounts)
+cli.add_command(createPost)
+cli.add_command(editPost)
+cli.add_command(deletePost)
+
 cli()
 
 def main():
