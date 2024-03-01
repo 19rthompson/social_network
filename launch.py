@@ -1,4 +1,5 @@
 import sys
+import random
 import click
 import os
 import sqlite3
@@ -109,6 +110,23 @@ def generate():
             id = cursor.lastrowid
             print(f'inserted with id = {id}')
         # addaccount(email, username, password)
+    for i in range(1,40):
+        num1 = random.randrange(1, 40)
+        num2 = random.randrange(1, 40)
+        with getdb() as con:
+            if num1 != num2:
+                cursor = con.cursor()
+                cursor.execute('''INSERT INTO followers(follower_id, following_id)
+                    VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num1, num2))
+            # addaccount(email, username, password)
+    for i in range(1,40):
+        num3 = random.randrange(1, 40)
+        num4 = random.randrange(1, 40)
+        with getdb() as con:
+            if num1 != num2:
+                cursor = con.cursor()
+                cursor.execute('''INSERT INTO subscribers(subscriber_id, subscribing_id)
+                    VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num3, num4))
     fin.close() 
 
     
