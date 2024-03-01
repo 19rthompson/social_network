@@ -1,4 +1,5 @@
 import sys
+import random
 import click
 import os
 import sqlite3
