@@ -138,6 +138,33 @@ def addaccount(email, username, password):
         id = cursor.lastrow
         print(f'inserted with id = {id}')
 
+@click.command()
+@click.argument('email')
+def createUser(email):
+    print('creating user with email:',email)
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute("""INSERT INTO users (email) VALUES (?)""",(email,))
+
+@click.command()
+def listUsers():
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute("""SELECT * FROM users""")
+        
+        for row in cursor.fetchall():
+            print(row)
+
+@click.command()
+def listAccounts():
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute("""SELECT * FROM accounts""")
+
+        for row in cursor.fetchall():
+            print(row)
+
+
 
 @click.command()
 def simpScore():
@@ -163,6 +190,9 @@ cli.add_command(generate)
 cli.add_command(adduser)
 cli.add_command(addaccount)
 cli.add_command(simpScore)
+cli.add_command(createUser)
+cli.add_command(listUsers)
+cli.add_command(listAccounts)
 cli()
 
 def main():
