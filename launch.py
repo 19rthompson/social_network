@@ -262,10 +262,10 @@ def displayFeed(userid):
     with getdb() as con:
         cursor = con.cursor()
         cursor.execute("""
-        SELECT posts.account_id,posts.content,posts.image,posts.hashtag
+        SELECT posts.account_id, posts.content, posts.image, posts.hashtag
         FROM accounts AS a1
-        JOIN followers ON follower_id = a1.account_id
-        JOIN accounts AS a2 ON following_id = a2.account_id
+        JOIN followers as f ON f.follower_id = a1.account_id
+        JOIN accounts AS a2 ON f.following_id = a2.account_id
         JOIN posts ON posts.account_id = a2.account_id
         WHERE a1.user_id = ?
         """,(userid,))
