@@ -129,8 +129,8 @@ def generate():
                 cursor.execute('''INSERT INTO subscribers(subscriber_id, subscribing_id)
                     VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num3, num4))
     for i in range(1, people):
-        num3 = random.randrange(1, people)
-        num4 = random.randrange(1, people)
+        num5 = random.randrange(1, people)
+        num6 = random.randrange(1, people)
         with getdb() as con:
             if num1 != num2:
                 cursor = con.cursor()
