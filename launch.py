@@ -136,7 +136,26 @@ def generate():
                 cursor = con.cursor()
                 cursor.execute('''INSERT INTO blocks(blocked_id, blocker_id)
                     VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num3, num4))
-    fin.close() 
+
+    bigwords = []
+    file = open("loremipsum.txt",'r')
+    for line in file:
+        line=line.strip()
+        words = line.split()
+        for word in words:
+            bigwords.append(word)
+    file.close()               
+    fin.close()
+    with getdb() as con:
+        for i in range(people):
+            for j in range(random.randrange(1,5)):
+                content = bigwords[random.randrange(0,len(bigwords))]
+                image = bigwords[random.randrange(0,len(bigwords))] + ".jpeg"
+                hashtag = '#'+bigwords[random.randrange(0,len(bigwords))]
+                cursor.execute("""
+                INSERT INTO posts
+                VALUES (?,?,?,DATETIME('now'),?)
+                """,(i+1,content,image,hashtag))
 
     
 @click.command()
