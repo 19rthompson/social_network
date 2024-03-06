@@ -89,6 +89,7 @@ CREATE TABLE posts (
 
 @click.command()
 def generate():
+    people = 240
     fin = open("social-media-random-user-account-data.txt")
     for line in fin:
         words = line.split()
@@ -110,18 +111,18 @@ def generate():
             id = cursor.lastrowid
             print(f'inserted with id = {id}')
         # addaccount(email, username, password)
-    for i in range(1,40):
-        num1 = random.randrange(1, 40)
-        num2 = random.randrange(1, 40)
+    for i in range(1,people):
+        num1 = random.randrange(1, people)
+        num2 = random.randrange(1, people)
         with getdb() as con:
             if num1 != num2:
                 cursor = con.cursor()
                 cursor.execute('''INSERT INTO followers(follower_id, following_id)
                     VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num1, num2))
             # addaccount(email, username, password)
-    for i in range(1,40):
-        num3 = random.randrange(1, 40)
-        num4 = random.randrange(1, 40)
+    for i in range(1,people):
+        num3 = random.randrange(1, people)
+        num4 = random.randrange(1, people)
         with getdb() as con:
             if num1 != num2:
                 cursor = con.cursor()
