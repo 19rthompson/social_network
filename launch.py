@@ -152,8 +152,9 @@ def generate():
                 content = bigwords[random.randrange(0,len(bigwords))]
                 image = bigwords[random.randrange(0,len(bigwords))] + ".jpeg"
                 hashtag = '#'+bigwords[random.randrange(0,len(bigwords))]
+                cursor = con.cursor()
                 cursor.execute("""
-                INSERT INTO posts
+                INSERT INTO posts (account_id,content,image,created_at,hashtag)
                 VALUES (?,?,?,DATETIME('now'),?)
                 """,(i+1,content,image,hashtag))
 
@@ -296,6 +297,8 @@ def displayFeed(userid):
         JOIN posts ON posts.account_id = a2.account_id
         WHERE a1.user_id = ?
         """,(userid,))
+        for row in cursor.fetchall():
+            print(row)
 
 
 @click.command()
