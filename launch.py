@@ -128,6 +128,14 @@ def generate():
                 cursor = con.cursor()
                 cursor.execute('''INSERT INTO subscribers(subscriber_id, subscribing_id)
                     VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num3, num4))
+    for i in range(1, people):
+        num3 = random.randrange(1, people)
+        num4 = random.randrange(1, people)
+        with getdb() as con:
+            if num1 != num2:
+                cursor = con.cursor()
+                cursor.execute('''INSERT INTO blocks(blocked_id, blocker_id)
+                    VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num3, num4))
     fin.close() 
 
     
