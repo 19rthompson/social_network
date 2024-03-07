@@ -2,21 +2,20 @@
 For Russle Rossle
 
 Our Commands <br>
-  create: create the database and its schema, no data is in it yet
-  generate: fill the database with users, as well as random follows, random subscriptions, and random blocks
-  adduser: add a user 
-  addaccount: add an account
-  followAccount:
-  unfollowAccount: 
-
-
-  subscriberScore
-  createUser
-  listUsers
-  listAccounts
-  createPost
-  editPost
-  deletePost
-  displayFeed
-  displayReccomendedFollowees
-  displayReccomendedFeed
+<br>
+  Create [email: create the database and its schema, no data is in it yet <br>
+  Generate: fill the database with users, as well as random follows, random subscriptions, and random blocks <br>
+  Adduser: add a user <br>
+  Addaccount: add an account <br>
+  FollowAccount: have an account follow another account
+  UnfollowAccount: 
+  SubscriberScore:
+  CreateUser:
+  ListUsers:
+  ListAccounts:
+  CreatePost:
+  EditPost:
+  DeletePost:
+  DisplayFeed:
+  DisplayReccomendedFollowees:
+  DisplayReccomendedFeed:
