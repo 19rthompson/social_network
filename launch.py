@@ -183,16 +183,18 @@ def addaccount(email, username, password):
         cursor = con.cursor()
         cursor.execute('''INSERT INTO accounts (user_id, username, password) 
             VALUES ((SELECT user_id FROM users WHERE email = ?), ?, ?)''', (email, username, password))
-        id = cursor.lastrow
+        id = cursor.lastrowid
         print(f'inserted with id = {id}')
 
+"""
 @click.command()
 @click.argument('email')
 def createUser(email):
     print('creating user with email:',email)
     with getdb() as con:
         cursor = con.cursor()
-        cursor.execute("""INSERT INTO users (email) VALUES (?)""",(email,))
+        cursor.execute(\"\"\"INSERT INTO users (email) VALUES (?)\"\"\",(email,))
+"""
 
 @click.command()
 def listUsers():
@@ -303,7 +305,7 @@ def displayFeed(accountid):
 
 @click.command()
 @click.argument('accountid')
-def displayReccomendedFollowees(accountid):
+def displayRecommendedFollowees(accountid):
     with getdb() as con:
         cursor = con.cursor()
         cursor.execute(
@@ -323,7 +325,7 @@ def displayReccomendedFollowees(accountid):
 
 @click.command()
 @click.argument('accountid')
-def displayReccomendedFeed(accountid):
+def displayRecommendedFeed(accountid):
     with getdb() as con:
         cursor = con.cursor()
         cursor.execute(
@@ -380,15 +382,15 @@ cli.add_command(generate)
 cli.add_command(adduser)
 cli.add_command(addaccount)
 cli.add_command(subscriberScore)
-cli.add_command(createUser)
+# cli.add_command(createUser)
 cli.add_command(listUsers)
 cli.add_command(listAccounts)
 cli.add_command(createPost)
 cli.add_command(editPost)
 cli.add_command(deletePost)
 cli.add_command(displayFeed)
-cli.add_command(displayReccomendedFollowees)
-cli.add_command(displayReccomendedFeed)
+cli.add_command(displayRecommendedFollowees)
+cli.add_command(displayRecommendedFeed)
 
 cli()
 
