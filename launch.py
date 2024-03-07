@@ -111,15 +111,16 @@ def generate():
             id = cursor.lastrowid
             print(f'inserted with id = {id}')
         # addaccount(email, username, password)
-    for i in range(1,people):
-        num1 = random.randrange(1, people)
-        num2 = random.randrange(1, people)
-        with getdb() as con:
-            if num1 != num2:
-                cursor = con.cursor()
-                cursor.execute('''INSERT INTO followers(follower_id, following_id)
-                    VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num1, num2))
-            # addaccount(email, username, password)
+    for i in range(10):    
+        for i in range(1,people):
+            num1 = random.randrange(1, people)
+            num2 = random.randrange(1, people)
+            with getdb() as con:
+                if num1 != num2:
+                    cursor = con.cursor()
+                    cursor.execute('''INSERT INTO followers(follower_id, following_id)
+                        VALUES ((SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?))''', (num1, num2))
+                # addaccount(email, username, password)
     for i in range(1,people):
         num3 = random.randrange(1, people)
         num4 = random.randrange(1, people)
@@ -285,8 +286,8 @@ def deletePost(postid):
         (postid,))
 
 @click.command()
-@click.argument('userid')
-def displayFeed(userid):
+@click.argument('accountid')
+def displayFeed(accountid):
     with getdb() as con:
         cursor = con.cursor()
         cursor.execute("""
@@ -296,10 +297,49 @@ def displayFeed(userid):
         JOIN accounts AS a2 ON f.following_id = a2.account_id
         JOIN posts ON posts.account_id = a2.account_id
         WHERE a1.user_id = ?
-        """,(userid,))
+        """,(accountid,))
         for row in cursor.fetchall():
             print(row)
 
+@click.command()
+@click.argument('accountid')
+def displayReccomendedFollowees(accountid):
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute(
+        """SELECT a2.username, count(1) as 'rating'
+        FROM accounts as a1
+        JOIN followers as f1 ON a1.account_id = f1.follower_id
+        JOIN followers as f2 ON f1.following_id = f2.follower_id
+        JOIN accounts as a2 ON a2.account_id = f2.following_id
+        WHERE a1.account_id = ?
+        GROUP BY f2.following_id
+        ORDER BY rating DESC
+        LIMIT 30
+        """,(accountid))
+        for row in cursor.fetchall():
+            print(row)
+
+
+@click.command()
+@click.argument('accountid')
+def displayReccomendedFeed(accountid):
+    with getdb() as con:
+        cursor = con.cursor()
+        cursor.execute(
+        """SELECT p1.content, count(1) as 'rating'
+        FROM accounts as a1
+        JOIN followers as f1 ON a1.account_id = f1.follower_id
+        JOIN followers as f2 ON f1.following_id = f2.follower_id
+        JOIN accounts as a2 ON a2.account_id = f2.following_id
+        JOIN posts as p1 ON p1.account_id = a2.account_id
+        WHERE a1.account_id = ?
+        GROUP BY f2.following_id
+        ORDER BY rating DESC
+        LIMIT 30
+        """,(accountid))
+        for row in cursor.fetchall():
+            print(row)
 
 @click.command()
 def simpScore():
@@ -335,6 +375,8 @@ cli.add_command(createPost)
 cli.add_command(editPost)
 cli.add_command(deletePost)
 cli.add_command(displayFeed)
+cli.add_command(displayReccomendedFollowees)
+cli.add_command(displayReccomendedFeed)
 
 cli()
 
