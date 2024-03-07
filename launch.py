@@ -302,24 +302,36 @@ def displayFeed(userid):
 
 
 @click.command()
-def simpScore():
+def subscriberScore():
     with getdb() as con:
         cursor=con.cursor()
         cursor.execute(
 '''
 SELECT
-    u.email,
-    ( COUNT(s.subsriber_id) / COUNT(f.following_id) ) AS simpscore
-FROM users AS u
-JOIN accounts AS a ON
-    u.user_id = a.user_id
-JOIN subscribers AS s ON
-    s.subscriber_id = a.account_id
-JOIN followers AS f ON
-    f.follower_id = a.account_id
-GROUP BY u.email
-ORDER BY simpscore, u.email DESC;
+    a.username,
+    (SELECT
+        COUNT(subscribing_id)
+    FROM subscribers AS s
+    WHERE s.subscriber_id = a.account_id
+    ) * 1.0 /
+    (SELECT
+        COUNT(following_id)
+    FROM followers AS f
+    WHERE f.follower_id = a.account_id
+    ) * 1.0 as ss
+FROM accounts AS a
+GROUP BY a.username
+ORDER BY ss DESC, a.username DESC;
 ''')
+        print("+------------------------------------------+----------------------+")
+        txt = "| {:^40} | {:^20} |"
+        print(txt.format("Account Name", "Subscriber Score"))
+        txt = "| {:<40} | {:<20} |"
+        print("+------------------------------------------+----------------------+")
+        for row in cursor.fetchall():
+            if row[1] is not None:
+                print(txt.format(row[0], row[1]))
+        print("+------------------------------------------+----------------------+")
 
 cli.add_command(unfollowAccount)
 cli.add_command(followAccount)
@@ -327,7 +339,7 @@ cli.add_command(create)
 cli.add_command(generate)
 cli.add_command(adduser)
 cli.add_command(addaccount)
-cli.add_command(simpScore)
+cli.add_command(subscriberScore)
 cli.add_command(createUser)
 cli.add_command(listUsers)
 cli.add_command(listAccounts)
